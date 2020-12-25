@@ -11,13 +11,13 @@
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>learning-dropwizard</name>
+    <name>LearningDropwizard</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <dropwizard.version>2.0.17</dropwizard.version>
-        <mainClass>com.github.murn.learning-dropwizardApplication</mainClass>
+        <mainClass>com.github.murn.LearningDropwizardApplication</mainClass>
     </properties>
 
     <dependencyManagement>

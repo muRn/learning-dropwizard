@@ -4,24 +4,24 @@ import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 
-public class learning-dropwizardApplication extends Application<learning-dropwizardConfiguration> {
+public class LearningDropwizardApplication extends Application<LearningDropwizardConfiguration> {
 
     public static void main(final String[] args) throws Exception {
-        new learning-dropwizardApplication().run(args);
+        new LearningDropwizardApplication().run(args);
     }
 
     @Override
     public String getName() {
-        return "learning-dropwizard";
+        return "LearningDropwizard";
     }
 
     @Override
-    public void initialize(final Bootstrap<learning-dropwizardConfiguration> bootstrap) {
+    public void initialize(final Bootstrap<LearningDropwizardConfiguration> bootstrap) {
         // TODO: application initialization
     }
 
     @Override
-    public void run(final learning-dropwizardConfiguration configuration,
+    public void run(final LearningDropwizardConfiguration configuration,
                     final Environment environment) {
         // TODO: implement application
     }
