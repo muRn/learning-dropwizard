@@ -25,3 +25,7 @@ hs_err_pid*
 # Intellij IDEA files
 *.iml
 .idea/
+
+# other
+target/
+dependency-reduced-pom.xml
