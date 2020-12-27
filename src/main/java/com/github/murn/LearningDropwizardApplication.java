@@ -2,6 +2,7 @@ package com.github.murn;
 
 import com.github.murn.health.TemplateHealthCheck;
 import com.github.murn.resources.GreetingResource;
+import com.github.murn.resources.PostResource;
 import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
@@ -30,6 +31,7 @@ public class LearningDropwizardApplication extends Application<LearningDropwizar
                 configuration.getDefaultName()
         );
         environment.jersey().register(resource);
+        environment.jersey().register(new PostResource());
 
         final TemplateHealthCheck healthCheck =
                 new TemplateHealthCheck(configuration.getTemplate());

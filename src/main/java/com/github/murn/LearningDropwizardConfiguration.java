@@ -1,9 +1,12 @@
 package com.github.murn;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.github.murn.db.DataSourceFactory;
 import io.dropwizard.Configuration;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 
 public class LearningDropwizardConfiguration extends Configuration {
     @NotEmpty
@@ -11,6 +14,10 @@ public class LearningDropwizardConfiguration extends Configuration {
 
     @NotEmpty
     private String defaultName = "Stranger";
+
+    @Valid
+    @NotNull
+    private DataSourceFactory database = new DataSourceFactory();
 
     @JsonProperty
     public String getTemplate() {
@@ -30,5 +37,15 @@ public class LearningDropwizardConfiguration extends Configuration {
     @JsonProperty
     public void setDefaultName(String name) {
         this.defaultName = name;
+    }
+
+    @JsonProperty("database")
+    public void setDataSourceFactory(DataSourceFactory factory) {
+        this.database = factory;
+    }
+
+    @JsonProperty("database")
+    public DataSourceFactory getDataSourceFactory() {
+        return database;
     }
 }
