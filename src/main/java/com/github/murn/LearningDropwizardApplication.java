@@ -7,13 +7,14 @@ import com.github.murn.resources.GreetingResource;
 import com.github.murn.resources.PostResource;
 import com.github.murn.resources.PostsResource;
 import io.dropwizard.Application;
+import io.dropwizard.db.DataSourceFactory;
+import io.dropwizard.migrations.MigrationsBundle;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 
 public class LearningDropwizardApplication extends Application<LearningDropwizardConfiguration> {
-
     public static void main(final String[] args) throws Exception {
         new LearningDropwizardApplication().run(args);
     }
@@ -25,7 +26,12 @@ public class LearningDropwizardApplication extends Application<LearningDropwizar
 
     @Override
     public void initialize(final Bootstrap<LearningDropwizardConfiguration> bootstrap) {
-        // TODO: application initialization
+        bootstrap.addBundle(new MigrationsBundle<LearningDropwizardConfiguration>() {
+            @Override
+            public DataSourceFactory getDataSourceFactory(LearningDropwizardConfiguration configuration) {
+                return configuration.getDataSourceFactory();
+            }
+        });
     }
 
     @Override
@@ -51,5 +57,4 @@ public class LearningDropwizardApplication extends Application<LearningDropwizar
         final DatabaseHealthCheck dbHealthCheck = new DatabaseHealthCheck(jdbi);
         environment.healthChecks().register("database", dbHealthCheck);
     }
-
 }
