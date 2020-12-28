@@ -28,7 +28,8 @@ public class PostResource {
     public Post getPost(@PathParam("id") OptionalInt idOpt) {
         int id = validatePostId(idOpt);
         return jdbi.withExtension(JdbiPostDao.class, dao ->
-                dao.getPostById(id));
+                dao.findPostById(id))
+                .orElseThrow(() -> new WebApplicationException("post with id " + id + " is not present", Response.Status.NOT_FOUND));
     }
 
     @PUT
@@ -41,7 +42,7 @@ public class PostResource {
         int rowsUpdated = jdbi.withExtension(JdbiPostDao.class, dao ->
                 dao.updatePost(post));
         if (rowsUpdated != 1) {
-            throw new WebApplicationException("Expected to update 1 row but updated " + rowsUpdated);
+            throw new WebApplicationException("post with id " + id + " is not present", Response.Status.NOT_FOUND);
         }
     }
 
@@ -51,7 +52,7 @@ public class PostResource {
         int rowsDeleted = jdbi.withExtension(JdbiPostDao.class, dao ->
                 dao.deletePostById(id));
         if (rowsDeleted != 1) {
-            throw new WebApplicationException("Expected to delete 1 row but deleted " + rowsDeleted);
+            throw new WebApplicationException("post with id " + id + " is not present", Response.Status.NOT_FOUND);
         }
     }
 
@@ -61,13 +62,6 @@ public class PostResource {
             throw new WebApplicationException("id is not passed or malformed", Response.Status.BAD_REQUEST);
         }
 
-        int id = idOpt.getAsInt();
-        Optional<Post> postOpt = jdbi.withExtension(JdbiPostDao.class, dao ->
-                dao.findPostById(id));
-        if (!postOpt.isPresent()) {
-            throw new WebApplicationException("id " + id + " is not present", Response.Status.NOT_FOUND);
-        }
-
-        return id;
+        return idOpt.getAsInt();
     }
 }

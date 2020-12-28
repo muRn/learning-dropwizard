@@ -36,7 +36,7 @@ public class PostsResource {
         int rowsInserted = jdbi.withExtension(JdbiPostDao.class, dao ->
                 dao.insertNewPost(post));
         if (rowsInserted != 1) {
-            throw new WebApplicationException("Expected to insert 1 row but inserted " + rowsInserted);
+            throw new WebApplicationException("Something went wrong when inserting new post");
         }
 
         return Response.created(UriBuilder.fromResource(PostsResource.class)

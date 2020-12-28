@@ -13,10 +13,6 @@ import java.util.Optional;
 public interface JdbiPostDao {
     @RegisterBeanMapper(Post.class)
     @SqlQuery("select * from public.posts where id=:id")
-    Post getPostById(@Bind("id") int id);
-
-    @RegisterBeanMapper(Post.class)
-    @SqlQuery("select * from public.posts where id=:id")
     Optional<Post> findPostById(@Bind("id") int id);
 
     @RegisterBeanMapper(Post.class)
