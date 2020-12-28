@@ -4,6 +4,7 @@ import com.github.murn.db.JdbiFactory;
 import com.github.murn.health.TemplateHealthCheck;
 import com.github.murn.resources.GreetingResource;
 import com.github.murn.resources.PostResource;
+import com.github.murn.resources.PostsResource;
 import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
@@ -29,16 +30,21 @@ public class LearningDropwizardApplication extends Application<LearningDropwizar
     @Override
     public void run(final LearningDropwizardConfiguration configuration,
                     final Environment environment) {
+        // initialize database connection pool
+        final JdbiFactory factory = new JdbiFactory();
+        final Jdbi jdbi = factory.build(configuration.getDataSourceFactory());
+        jdbi.installPlugin(new SqlObjectPlugin());
+
+        // add all resources
         final GreetingResource resource = new GreetingResource(
                 configuration.getTemplate(),
                 configuration.getDefaultName()
         );
         environment.jersey().register(resource);
-        final JdbiFactory factory = new JdbiFactory();
-        final Jdbi jdbi = factory.build(configuration.getDataSourceFactory());
-        jdbi.installPlugin(new SqlObjectPlugin());
         environment.jersey().register(new PostResource(jdbi));
+        environment.jersey().register(new PostsResource(jdbi));
 
+        // add health checks
         final TemplateHealthCheck healthCheck =
                 new TemplateHealthCheck(configuration.getTemplate());
         environment.healthChecks().register("template", healthCheck);

@@ -7,6 +7,7 @@ import org.jdbi.v3.sqlobject.customizer.BindBean;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface JdbiPostDao {
@@ -17,6 +18,10 @@ public interface JdbiPostDao {
     @RegisterBeanMapper(Post.class)
     @SqlQuery("select * from public.posts where id=:id")
     Optional<Post> findPostById(@Bind("id") int id);
+
+    @RegisterBeanMapper(Post.class)
+    @SqlQuery("select * from public.posts")
+    List<Post> getAllPosts();
 
     @SqlUpdate("insert into public.posts(id, header, content, author, editor, updated_at) values(:id, :header, :content, :author, :editor, current_timestamp)")
     int insertNewPost(@BindBean Post post);
