@@ -1,5 +1,6 @@
 package com.github.murn.api;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.time.LocalDateTime;
@@ -17,9 +18,8 @@ public class Post {
         return id;
     }
 
-    public Post updateId(Integer id) {
+    public void setId(Integer id) {
         this.id = id;
-        return this;
     }
 
     @JsonProperty
@@ -68,6 +68,7 @@ public class Post {
     }
 
     @JsonProperty
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     public void setTimestamp(LocalDateTime timestamp) {
         this.timestamp = timestamp;
     }

@@ -2,6 +2,7 @@ package com.github.murn.resources;
 
 import com.github.murn.api.Post;
 import lombok.extern.slf4j.Slf4j;
+import org.jdbi.v3.core.Jdbi;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -14,18 +15,22 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Path("/posts/{id}")
 @Produces(MediaType.APPLICATION_JSON)
 public class PostResource {
-    private final Map<Integer, Post> allPosts;
+    private final Jdbi jdbi;
     private final AtomicInteger counter;
 
-    public PostResource() {
-        this.allPosts = new HashMap<>();
+    public PostResource(Jdbi jdbi) {
+        this.jdbi = jdbi;
         this.counter = new AtomicInteger();
     }
 
     @GET
     public Post getPost(@PathParam("id") OptionalInt idOpt) {
         int id = validatePostId(idOpt);
-        return allPosts.get(id);
+        return jdbi.withHandle(handle ->
+                handle.createQuery("select * from public.posts where id=?")
+                .bind(0, id)
+                .mapToBean(Post.class)
+                .one());
     }
 
     private int validatePostId(OptionalInt idOpt) {
@@ -35,7 +40,12 @@ public class PostResource {
         }
 
         int id = idOpt.getAsInt();
-        if (!allPosts.containsKey(id)) {
+        Optional<Post> postOpt = jdbi.withHandle(handle ->
+                handle.createQuery("select * from public.posts where id=?")
+                        .bind(0, id)
+                        .mapToBean(Post.class)
+                        .findFirst());
+        if (!postOpt.isPresent()) {
             throw new WebApplicationException("id " + id + " is not present", Response.Status.NOT_FOUND);
         }
 
@@ -45,7 +55,15 @@ public class PostResource {
     @POST
     public Response addPost(Post post) {
         int id = counter.getAndIncrement();
-        allPosts.put(id, post.updateId(id));
+        post.setId(id);
+        int rowsInserted = jdbi.withHandle(handle ->
+                handle.createUpdate("insert into public.posts(id, header, content, author, editor, updated_at) values(:id, :header, :content, :author, :editor, :timestamp)")
+                .bindBean(post)
+                .execute());
+        if (rowsInserted != 1) {
+            throw new WebApplicationException("Expected to insert 1 row but inserted " + rowsInserted);
+        }
+
         return Response.created(UriBuilder.fromResource(PostResource.class)
                 .build(post.getId()))
                 .build();
@@ -58,12 +76,27 @@ public class PostResource {
             throw new WebApplicationException("Id from path doesn't match id from body");
         }
 
-        allPosts.put(id, post);
+        int rowsUpdated = jdbi.withHandle(handle ->
+                handle.createUpdate("update public.posts set header=?, content=?, editor=? where id=?")
+                        .bind(0, post.getHeader())
+                        .bind(1, post.getContent())
+                        .bind(2, "moderator")
+                        .bind(3, id)
+                        .execute());
+        if (rowsUpdated != 1) {
+            throw new WebApplicationException("Expected to update 1 row but updated " + rowsUpdated);
+        }
     }
 
     @DELETE
     public void deletePost(@PathParam("id") OptionalInt idOpt) {
         int id = validatePostId(idOpt);
-        allPosts.remove(id);
+        int rowsDeleted = jdbi.withHandle(handle ->
+                handle.createUpdate("delete from public.posts where id=?")
+                .bind(0, id)
+                .execute());
+        if (rowsDeleted != 1) {
+            throw new WebApplicationException("Expected to delete 1 row but deleted " + rowsDeleted);
+        }
     }
 }

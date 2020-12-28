@@ -1,8 +1,8 @@
 package com.github.murn;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.github.murn.db.DataSourceFactory;
 import io.dropwizard.Configuration;
+import io.dropwizard.db.DataSourceFactory;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;

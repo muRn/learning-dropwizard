@@ -1,11 +1,13 @@
 package com.github.murn;
 
+import com.github.murn.db.JdbiFactory;
 import com.github.murn.health.TemplateHealthCheck;
 import com.github.murn.resources.GreetingResource;
 import com.github.murn.resources.PostResource;
 import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
+import org.jdbi.v3.core.Jdbi;
 
 public class LearningDropwizardApplication extends Application<LearningDropwizardConfiguration> {
 
@@ -31,7 +33,9 @@ public class LearningDropwizardApplication extends Application<LearningDropwizar
                 configuration.getDefaultName()
         );
         environment.jersey().register(resource);
-        environment.jersey().register(new PostResource());
+        final JdbiFactory factory = new JdbiFactory();
+        final Jdbi jdbi = factory.build(configuration.getDataSourceFactory());
+        environment.jersey().register(new PostResource(jdbi));
 
         final TemplateHealthCheck healthCheck =
                 new TemplateHealthCheck(configuration.getTemplate());
