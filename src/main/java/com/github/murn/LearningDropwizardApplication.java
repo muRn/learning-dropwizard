@@ -8,6 +8,7 @@ import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import org.jdbi.v3.core.Jdbi;
+import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 
 public class LearningDropwizardApplication extends Application<LearningDropwizardConfiguration> {
 
@@ -35,6 +36,7 @@ public class LearningDropwizardApplication extends Application<LearningDropwizar
         environment.jersey().register(resource);
         final JdbiFactory factory = new JdbiFactory();
         final Jdbi jdbi = factory.build(configuration.getDataSourceFactory());
+        jdbi.installPlugin(new SqlObjectPlugin());
         environment.jersey().register(new PostResource(jdbi));
 
         final TemplateHealthCheck healthCheck =
