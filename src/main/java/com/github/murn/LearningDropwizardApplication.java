@@ -1,6 +1,7 @@
 package com.github.murn;
 
 import com.github.murn.db.JdbiFactory;
+import com.github.murn.health.DatabaseHealthCheck;
 import com.github.murn.health.TemplateHealthCheck;
 import com.github.murn.resources.GreetingResource;
 import com.github.murn.resources.PostResource;
@@ -45,9 +46,10 @@ public class LearningDropwizardApplication extends Application<LearningDropwizar
         environment.jersey().register(new PostsResource(jdbi));
 
         // add health checks
-        final TemplateHealthCheck healthCheck =
-                new TemplateHealthCheck(configuration.getTemplate());
-        environment.healthChecks().register("template", healthCheck);
+        final TemplateHealthCheck tmplHealthCheck = new TemplateHealthCheck(configuration.getTemplate());
+        environment.healthChecks().register("template", tmplHealthCheck);
+        final DatabaseHealthCheck dbHealthCheck = new DatabaseHealthCheck(jdbi);
+        environment.healthChecks().register("database", dbHealthCheck);
     }
 
 }
