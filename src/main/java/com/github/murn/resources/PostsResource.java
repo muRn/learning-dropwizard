@@ -3,7 +3,6 @@ package com.github.murn.resources;
 import com.github.murn.api.Post;
 import com.github.murn.db.JdbiPostDao;
 import lombok.extern.slf4j.Slf4j;
-import org.jdbi.v3.core.Jdbi;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -16,25 +15,24 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Path("/posts")
 @Produces(MediaType.APPLICATION_JSON)
 public class PostsResource {
-    private final Jdbi jdbi;
+    private final JdbiPostDao dao;
     private final AtomicInteger counter;
 
-    public PostsResource(Jdbi jdbi) {
-        this.jdbi = jdbi;
+    public PostsResource(JdbiPostDao dao) {
+        this.dao = dao;
         this.counter = new AtomicInteger();
     }
 
     @GET
     public List<Post> getPosts() {
-        return jdbi.withExtension(JdbiPostDao.class, JdbiPostDao::getAllPosts);
+        return dao.getAllPosts();
     }
 
     @POST
     public Response addPost(Post post) {
         int id = counter.incrementAndGet();
         post.setId(id);
-        int rowsInserted = jdbi.withExtension(JdbiPostDao.class, dao ->
-                dao.insertNewPost(post));
+        int rowsInserted = dao.insertNewPost(post);
         if (rowsInserted != 1) {
             throw new WebApplicationException("Something went wrong when inserting new post");
         }

@@ -1,6 +1,7 @@
 package com.github.murn;
 
 import com.github.murn.db.JdbiFactory;
+import com.github.murn.db.JdbiPostDao;
 import com.github.murn.health.DatabaseHealthCheck;
 import com.github.murn.health.TemplateHealthCheck;
 import com.github.murn.resources.GreetingResource;
@@ -41,6 +42,7 @@ public class LearningDropwizardApplication extends Application<LearningDropwizar
         final JdbiFactory factory = new JdbiFactory();
         final Jdbi jdbi = factory.build(configuration.getDataSourceFactory());
         jdbi.installPlugin(new SqlObjectPlugin());
+        JdbiPostDao postDao = jdbi.onDemand(JdbiPostDao.class);
 
         // add all resources
         final GreetingResource resource = new GreetingResource(
@@ -48,8 +50,8 @@ public class LearningDropwizardApplication extends Application<LearningDropwizar
                 configuration.getDefaultName()
         );
         environment.jersey().register(resource);
-        environment.jersey().register(new PostResource(jdbi));
-        environment.jersey().register(new PostsResource(jdbi));
+        environment.jersey().register(new PostResource(postDao));
+        environment.jersey().register(new PostsResource(postDao));
 
         // add health checks
         final TemplateHealthCheck tmplHealthCheck = new TemplateHealthCheck(configuration.getTemplate());

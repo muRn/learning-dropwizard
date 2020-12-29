@@ -3,12 +3,10 @@ package com.github.murn.resources;
 import com.github.murn.api.Post;
 import com.github.murn.db.JdbiPostDao;
 import lombok.extern.slf4j.Slf4j;
-import org.jdbi.v3.core.Jdbi;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -16,19 +14,18 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Path("/posts/{id}")
 @Produces(MediaType.APPLICATION_JSON)
 public class PostResource {
-    private final Jdbi jdbi;
+    private final JdbiPostDao dao;
     private final AtomicInteger counter;
 
-    public PostResource(Jdbi jdbi) {
-        this.jdbi = jdbi;
+    public PostResource(JdbiPostDao dao) {
+        this.dao = dao;
         this.counter = new AtomicInteger();
     }
 
     @GET
     public Post getPost(@PathParam("id") OptionalInt idOpt) {
         int id = validatePostId(idOpt);
-        return jdbi.withExtension(JdbiPostDao.class, dao ->
-                dao.findPostById(id))
+        return dao.findPostById(id)
                 .orElseThrow(() -> new WebApplicationException("post with id " + id + " is not present", Response.Status.NOT_FOUND));
     }
 
@@ -39,8 +36,7 @@ public class PostResource {
             throw new WebApplicationException("Id from path doesn't match id from body");
         }
 
-        int rowsUpdated = jdbi.withExtension(JdbiPostDao.class, dao ->
-                dao.updatePost(post));
+        int rowsUpdated = dao.updatePost(post);
         if (rowsUpdated != 1) {
             throw new WebApplicationException("post with id " + id + " is not present", Response.Status.NOT_FOUND);
         }
@@ -49,8 +45,7 @@ public class PostResource {
     @DELETE
     public void deletePost(@PathParam("id") OptionalInt idOpt) {
         int id = validatePostId(idOpt);
-        int rowsDeleted = jdbi.withExtension(JdbiPostDao.class, dao ->
-                dao.deletePostById(id));
+        int rowsDeleted = dao.deletePostById(id);
         if (rowsDeleted != 1) {
             throw new WebApplicationException("post with id " + id + " is not present", Response.Status.NOT_FOUND);
         }
